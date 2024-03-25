@@ -1,0 +1,7 @@
+{
+  "name": "digital-checklist",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,36 @@
+<!-- <meta http-equiv="refresh" content="30"> -->
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Login</ion-title>
+    <ion-icon slot="end" name="person-circle"></ion-icon>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+      <ion-card-header>
+        <ion-card-title> Bem Vindo </ion-card-title>
+        <ion-card-subtitle>
+          Digite sua matricula para acessar!
+        </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="wrapform">
+          <ion-item color="light">
+            <ion-icon slot="start" name="person-outline"></ion-icon>
+            <ion-input placeholder="Matrícula" [(ngModel)]="matricula">
+            </ion-input>
+          </ion-item>
+        </div>
+        <div class="sign-btn-wrap">
+          <ion-button shape="round" fill="solid" class="sign-btn" (click)="login()"
+            [disabled]="!matricula">Entrar</ion-button>
+        </div>
+      </ion-card-content>
+
+    </ion-content>
+
+    <ion-footer>
+    <ion-row class="footer-row">
+      <ion-img src="https://cevalogsv.com/assets/img/ceva_logo.png" alt="Qr Code"></ion-img>
+      </ion-row>
+    </ion-footer>

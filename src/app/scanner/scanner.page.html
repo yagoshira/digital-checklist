@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar color="primary"> </ion-toolbar>
+</ion-header>
+
+<div class="scanner">
+  <ion-card>
+    <ion-label>Scaneie o QR Code</ion-label>
+    <ion-input #resultInput [(ngModel)]="result" (keyup.enter)="finish()"></ion-input>
+  </ion-card>
+
+    <ion-button (click)="gotoCam()"> Assinar com câmera </ion-button>
+    <div class="wrapper__scanner">
+      <ion-card-title>Centralize a câmera com o QR Code</ion-card-title>
+      <button class="float-button" (click)="changeCamera()">
+        <ion-icon name="camera-reverse-outline"></ion-icon>
+      </button>
+      <div class="video--container">
+        <video #videoElement autoplay playsinline></video>
+      </div>
+      <h1>Assinatura do Colaborador:</h1>
+      <ion-input class="text-align" [(ngModel)]="result" value="{{result}}" readonly="true"></ion-input>
+      <div class="video--container" style="display: none">
+        <canvas id="canvas" #canvas></canvas>
+      </div>
+      <ion-button (click)="finish()" [disabled]="!result">Avançar</ion-button>
+    </div>
+  </div>

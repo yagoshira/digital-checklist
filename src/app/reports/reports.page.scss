@@ -1,0 +1,212 @@
+/* Estilo para o ion-card */
+.custom-card {
+  border: ridge;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  padding: 16px; 
+  margin-bottom: 16px; 
+
+  .card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .card-content {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 16px;
+  }
+
+  .card-footer {
+    font-size: 14px;
+    color: #888;
+  }
+}
+
+.custom-card-list {
+  display: flex;
+  flex-direction: column;
+}
+
+  
+  ion-card-header.ios {
+    display: flex;
+    flex-flow: column-reverse;
+  }
+  
+  ion-row{
+    width: 100%;
+    cursor: pointer;
+    ion-card{
+      color: #87CEFA;
+    }
+  }
+  
+  .text-align {
+    text-align: center;
+  }
+  
+  .footer-row{
+    justify-content: center;
+    ion-img{
+      width: 100px;
+      height: 50px;
+      align-items: center;
+      padding-right: 3px;
+    }
+  }
+  .export {
+    display: flex;
+    align-items: center;
+
+    span {
+        margin-right: 8px
+    }
+
+    img {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+        cursor: pointer;
+    }
+}
+
+.ion-no-border {
+  text-align: right;
+
+  ion-title {
+      color: black;
+      font-size: 18px;
+  }
+
+  height: 40px;
+}
+
+.modal-wrapper {
+  --width: 90%;
+  --height: 90%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+ion-header {
+  // display: flex;
+  text-align: center;
+}
+
+.ion-overflow-scroll {
+  overflow-x: auto;
+}
+
+.table-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.header-row th {
+  background-color: #ffffff;
+  font-weight: bold;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.valor {
+  text-align: center;
+}
+
+.ion-content-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.date-search-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // margin: 10px;
+}
+
+.date-input {
+  flex: 1;
+}
+
+.searchbar {
+  flex: 1;
+}
+
+.danger-cell {
+  color: red;
+}
+
+.success-cell {
+  color: green;
+}
+
+.card {
+  cursor: pointer;
+
+  ion-card-title,
+  ion-card-subtitle {
+      text-align: center;
+  }
+
+  ion-card {
+      height: 100px;
+      width: 140px;
+  }
+
+  ion-card-content {
+      font-size: 12px;
+  }
+
+  align-items: center;
+  justify-content: center;
+}
+
+ion-row {
+  align-items: center;
+  justify-content: center;
+
+}
+
+.footer-row {
+  justify-content: center;
+
+  ion-img {
+      width: 100px;
+      height: 50px;
+      align-items: center;
+      padding-right: 3px;
+  }
+}
+
+.footer-img {
+  justify-content: center;
+}
+
+  // .detail {
+  //   font-weight: bold;
+  // }

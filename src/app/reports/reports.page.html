@@ -1,0 +1,365 @@
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <div class="text-align">
+        <ion-buttons slot="end">
+          <ion-button (click)="gotoHome()">Sair</ion-button>
+          <ion-title>Relatório de Checklists</ion-title>
+        </ion-buttons>
+      </div>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content [fullscreen]="true">
+    <ion-searchbar color="light" placeholder="Procurar" showcancelbutton="true" (ionChange)="searchReport($event)">
+    </ion-searchbar>
+      <!-- <ion-accordion-group>
+        <ion-accordion value="first">
+          <ion-item slot="header">
+            <ion-label>Filtros:</ion-label>
+          </ion-item>
+  
+          <div class="ion-padding" slot="content">
+            <ion-list lines="full">
+              <ion-item class="date-search-container">
+                <ion-item class="date-search-container">
+                  <ion-input
+                    id="inicio"
+                    label="Dê:"
+                    placeholder="25/11/2023"
+                    [(ngModel)]="data_pesquisa_inicio"
+                    (ionChange)="pesquisa_data()"
+                  ></ion-input>
+                  <ion-icon
+                    name="close-circle"
+                    slot="end"
+                    (click)="limparCampo()"
+                  ></ion-icon>
+                </ion-item>
+  
+                <ion-modal class="modal-wrapper" #modal trigger="inicio">
+                  <ng-template>
+                    <ion-header>
+                      <ion-toolbar>
+                        <ion-title>Selecione a data:</ion-title>
+                      </ion-toolbar>
+                    </ion-header>
+                    <ion-content>
+                      <ion-item>
+                        <ion-datetime
+                          [showDefaultButtons]="true"
+                          presentation="date"
+                          [(ngModel)]="data_pesquisa_inicio"
+                          (ionChange)="pesquisa_data()"
+                        ></ion-datetime>
+                      </ion-item>
+                    </ion-content>
+                  </ng-template>
+                </ion-modal>
+  
+                <ion-item class="date-search-container">
+                  <ion-input
+                    id="fim"
+                    label="Até:"
+                    placeholder="25/11/2023"
+                    [(ngModel)]="data_pesquisa_fim"
+                    (ionChange)="pesquisa_data()"
+                  ></ion-input>
+                  <ion-icon
+                    name="close-circle"
+                    slot="end"
+                    (click)="limparCampo()"
+                  ></ion-icon>
+                </ion-item>
+  
+                <ion-modal class="modal-wrapper" #modal trigger="fim">
+                  <ng-template>
+                    <ion-header>
+                      <ion-toolbar>
+                        <ion-title>Selecione a data:</ion-title>
+                      </ion-toolbar>
+                    </ion-header>
+                    <ion-content>
+                      <ion-item>
+                        <ion-datetime
+                          [showDefaultButtons]="true"
+                          presentation="date"
+                          [(ngModel)]="data_pesquisa_fim"
+                          (ionChange)="pesquisa_data()"
+                        ></ion-datetime>
+                      </ion-item>
+                    </ion-content>
+                  </ng-template>
+                </ion-modal>
+              </ion-item>
+            </ion-list>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group> -->
+  
+      <div *ngIf="isLoading" class="loading-container">
+        <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+        <p class="loading-message">Carregando...</p>
+      </div>
+      <ion-item>
+        <div class="export">
+          <span>Exportar:</span>
+          <img src="assets/icon/pdf-icon.svg" alt="PDF" (click)="exportToPDF()" />
+          <img
+            src="assets/icon/excel-icon.svg"
+            alt="Excel"
+            (click)="exportToCSV()"
+          />
+          <!-- <img src="assets/icon/share-icon.svg" alt="Compartilhar" (click)="shareCSV()"> -->
+        </div>
+      </ion-item>
+      <ion-grid class="ion-overflow-scroll">
+        <div class="table-wrapper">
+          <table #tableToExport>
+            <thead>
+              <tr class="header-row">
+                <th>Nome</th>
+                <th>Matricula</th>
+                <th>Data</th>
+                <th>N. Maquina</th>
+                <th>Turno</th>
+                <th>Setor</th>
+                <th>Carga</th>
+                <th>Freio do timão/manche:</th>
+                <th>Buzina:</th>
+                <th>Comando Direcional Tipo Borboleta:</th>
+                <th>Comando Elevação Garfo:</th>
+                <th>Botão Anti Esmagamento:</th>
+                <th>Botão Emergência:</th>
+                <th>Sensor da Trava de Bateria:</th>
+                <th>Condição das Rodas:</th>
+                <th>Carenagens de Proteção Limpeza e Conservação:</th>
+                <th>Garfo / Patola:</th>
+                <th>Placa e Adesivo da Capacidade de Carga:	</th>
+                <th>Chave Liga/Desliga:	</th>
+                <th>Vazamentos:</th>
+                <th>Marcador do Horimetro:</th>
+                <th>Cabo/Plug da Bateria:	</th>
+                <th>Medidor de Carga da Bateria:	</th>
+                <th>Carregador da Bateria:	</th>
+                <th>Vazamentos:	</th>
+                <th>Assinatura do Lider:	</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                id="{{item.id}}"
+                *ngFor="let item of checklists"     
+              >
+              <ion-modal class="modal-wrapper"
+              trigger="{{item.id}}"
+              (willDismiss)="onWillDismiss($event)"
+              #modal
+              trigger="open-modal"
+              [canDismiss]="canDismiss"
+            >
+                <ng-template>
+                  <div *ngIf="isLoadingDetail" class="loading-container">
+                    <ion-spinner
+                      name="crescent"
+                      class="loading-spinner"
+                    ></ion-spinner>
+                    <p class="loading-message">Carregando...</p>
+                  </div>
+                  <ion-header>
+                    <ion-toolbar>
+                      <ion-title>{{item.nome}}</ion-title>
+                      <ion-buttons slot="end">
+                        <ion-button (click)="closeModal()">Fechar</ion-button>
+                      </ion-buttons>
+                    </ion-toolbar>
+                  </ion-header>
+                  <ion-toolbar>
+                    <ion-item>
+                      <div class="export">
+                        <span>Exportar:</span>
+                        <img
+                          src="assets/icon/pdf-icon.svg"
+                          alt="PDF"
+                          (click)="exportToPDFDetail()"
+                        />
+                        <img
+                          src="assets/icon/excel-icon.svg"
+                          alt="Excel"
+                          (click)="exportToCSVDetail()"
+                        />
+                        <!-- <img src="assets/icon/share-icon.svg" alt="Compartilhar" (click)="shareCSV()"> -->
+                      </div>
+                    </ion-item>
+
+                    <ion-item>
+                      <!-- <ion-searchbar
+                        placeholder="Search"
+                        (ionInput)="searchDetail($event)"
+                      ></ion-searchbar> -->
+                    </ion-item>
+                  </ion-toolbar>
+                  <ion-content>
+                    <div class="table-wrapper-detail">
+                      <table #tableToExportDetail>
+                        <thead>
+                          <tr>
+                            <th>Perguntas</th>
+                            <th>Respostas</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Nome:</td>
+                            <td>{{item.nome}}</td>
+                          </tr>
+                          <tr>
+                            <td>Matricula:</td>
+                            <td>{{item.matricula}}</td>
+                          </tr>
+                          <tr>
+                            <td>Data:</td>
+                            <td>{{item.data | date:'dd/MM/yyyy HH:mm'}}</td>
+                          </tr>
+                          <tr>
+                            <td>N. Maquina:</td>
+                            <td>{{item.n_maquina}}</td>
+                          </tr>
+                          <tr>
+                            <td>Turno:</td>
+                            <td>{{item.turno}}</td>
+                          </tr>
+                          <tr>
+                            <td>Setor:</td>
+                            <td>{{item.setor}}</td>
+                          </tr>
+                          <tr>
+                            <td>Carga:</td>
+                            <td>{{item.carga}}</td>
+                          </tr>
+                          <tr>
+                            <td>Freio do timão/manche:</td>
+                            <td>{{item.op1}}</td>
+                          </tr>
+                          <tr>
+                            <td>Buzina:</td>
+                            <td>{{item.op2}}</td>
+                          </tr>
+                          <tr>
+                            <td>Comando Direcional Tipo Borboleta:</td>
+                            <td>{{item.op3}}</td>
+                          </tr>
+                          <tr>
+                            <td>Comando Elevação Garfo:</td>
+                            <td>{{item.op4}}</td>
+                          </tr>
+                          <tr>
+                            <td>Botão Anti Esmagamento:</td>
+                            <td>{{item.op5}}</td>
+                          </tr>
+                          <tr>
+                            <td>Botão Emergência:</td>
+                            <td>{{item.op6}}</td>
+                          </tr>
+                          <tr>
+                            <td>Sensor da Trava de Bateria:</td>
+                            <td>{{item.op7}}</td>
+                          </tr>
+                          <tr>
+                            <td>Condição das Rodas:</td>
+                            <td>{{item.op8}}</td>
+                          </tr>
+                          <tr>
+                            <td>Carenagens de Proteção Limpeza e Conservação:</td>
+                            <td>{{item.op9}}</td>
+                          </tr>
+                          <tr>
+                            <td>Garfo / Patola:</td>
+                            <td>{{item.op10}}</td>
+                          </tr>
+                          <tr>
+                            <td>Placa e Adesivo da Capacidade de Carga:</td>
+                            <td>{{item.op11}}</td>
+                          </tr>
+                          <tr>
+                            <td>Chave Liga/Desliga:</td>
+                            <td>{{item.op12}}</td>
+                          </tr>
+                          <tr>
+                            <td>Vazamentos:</td>
+                            <td>{{item.op13}}</td>
+                          </tr>
+                          <tr>
+                            <td>Marcador do Horimetro:</td>
+                            <td>{{item.op14}}</td>
+                          </tr>
+                          <tr>
+                            <td>Cabo/Plug da Bateria:</td>
+                            <td>{{item.op15}}</td>
+                          </tr>
+                          <tr>
+                            <td>Medidor de Carga da Bateria:</td>
+                            <td>{{item.op16}}</td>
+                          </tr>
+                          <tr>
+                            <td>Carregador da Bateria:</td>
+                            <td>{{item.op17}}</td>
+                          </tr>
+                          <tr>
+                            <td>Vazamentos:</td>
+                            <td>{{item.op18}}</td>
+                          </tr>
+                          <!-- <tr>
+                            <td>Assinatura Colaborador:</td>
+                            <td>{{item.signature}}</td>
+                          </tr> -->
+                          <tr>
+                            <td>Assinatura do Lider:</td>
+                            <td>{{item.lider_signature}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ion-content>
+                </ng-template>
+              </ion-modal>
+                      <td>{{item.nome}}</td>
+                      <td>{{item.matricula}}</td>
+                      <td>{{item.data}}</td>
+                      <td>{{item.n_maquina}}</td>
+                      <td>{{item.turno}}</td>
+                      <td>{{item.setor}}</td>
+                      <td>{{item.carga}}</td>
+                      <td>{{item.op1}}</td>
+                      <td>{{item.op2}}</td>
+                      <td>{{item.op3}}</td>
+                      <td>{{item.op4}}</td>
+                      <td>{{item.op5}}</td>
+                      <td>{{item.op6}}</td>
+                      <td>{{item.op7}}</td>
+                      <td>{{item.op8}}</td>
+                      <td>{{item.op9}}</td>
+                      <td>{{item.op10}}</td>
+                      <td>{{item.op11}}</td>
+                      <td>{{item.op12}}</td>
+                      <td>{{item.op13}}</td>
+                      <td>{{item.op14}}</td>
+                      <td>{{item.op15}}</td>
+                      <td>{{item.op16}}</td>
+                      <td>{{item.op17}}</td>
+                      <td>{{item.op18}}</td>
+                      <td>{{item.lider_signature}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+
+  <ion-footer>
+    <ion-row class="footer-row">
+      <ion-img
+        src="https://cevalogsv.com/assets/img/ceva_logo.png"
+        alt="Qr Code"
+      ></ion-img>
+    </ion-row>
+  </ion-footer>
+

@@ -1,0 +1,895 @@
+ <ion-menu [disabled]="acesso != 'ADMIN'" contentId="main-content">
+  <ion-header [translucent]="true">
+    <ion-toolbar color="primary">
+      <ion-title>Menu</ion-title>
+    </ion-toolbar>
+    <div class="menu">
+      <ion-list lines="full">
+        <ion-button  [disabled]="false" (click)="gotoReports()" color="light" expand="full">
+          Reports
+        </ion-button>
+        <ion-button  [disabled]="false" (click)="gotoGenerator()" color="light" expand="full">
+          QR Generator
+        </ion-button>
+      </ion-list>
+    </div>
+  </ion-header>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title class="text-align">Checklist Digital</ion-title>
+    </ion-toolbar>
+  </ion-header> 
+
+<ion-content>
+  <div *ngIf="step=='inicio'">
+    <ion-card class="ion-no-margin">
+      <ion-card-header>
+        <ion-card-title>Checklist Transpaleteira Elétrica</ion-card-title>
+        <ion-card-subtitle> Preencha o checklist </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="full">
+          <ion-item color="light" class="ion-item-start">
+            <ion-label position="floating">N° Do Equipamento:</ion-label>
+            <ion-select interface="popover" [(ngModel)]="n_maquina">
+              <ion-select-option value="rc1">RC-1</ion-select-option>
+              <ion-select-option value="rc2">RC-2</ion-select-option>
+              <ion-select-option value="rc3">RC-3</ion-select-option>
+              <ion-select-option value="rc4">RC-4</ion-select-option>
+              <ion-select-option value="rc5">RC-5</ion-select-option>
+              <ion-select-option value="rc6">RC-6</ion-select-option>
+              <ion-select-option value="rc7">RC-7</ion-select-option>
+              <ion-select-option value="rc8">RC-8</ion-select-option>
+              <ion-select-option value="rc9">RC-9</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item color="light">
+            <ion-label text-wrap color="primary" id="data"
+              >Data: {{date | date : 'dd/MM/yyyy - HH:mm'}}
+            </ion-label>
+            <ion-modal class="modal-wrapper" #modal trigger="data">
+              <ng-template>
+                <ion-header>
+                  <ion-toolbar>
+                    <ion-title>Data:</ion-title>
+                  </ion-toolbar>
+                </ion-header>
+                <ion-content>
+                  <ion-item color="light">
+                    <ion-datetime
+                      [(ngModel)]="date"
+                      [showDefaultButtons]="true"
+                      presentation="data"
+                      displayFormat="dd/MM/yyyy - HH:mm"
+                    ></ion-datetime>
+                  </ion-item>
+                </ion-content>
+              </ng-template>
+            </ion-modal>
+            <ion-item color="light">
+              <ion-label position="fixed">Turno:</ion-label>
+              <ion-select interface="popover" [(ngModel)]="turno">
+                <ion-select-option value="1">1°</ion-select-option>
+                <ion-select-option value="2">2°</ion-select-option>
+                <ion-select-option value="3">3°</ion-select-option>
+                <ion-select-option value="4">4°</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input [(ngModel)]="setor">
+              <ion-label color="primary">Setor: </ion-label>
+            </ion-input>
+          </ion-item>
+          <ion-item color="light">
+            <ion-input [(ngModel)]="carga">
+              <ion-label color="primary">Capacidade de Carga:</ion-label>
+            </ion-input>
+          </ion-item>
+        </ion-list>
+        <div style="text-align: center">
+          <ion-button
+            (click)="gotoChecklist()"
+            [disabled]="!n_maquina || !date || !turno || !setor || !carga"
+          >
+            Próximo
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="step=='checklist'">
+    <ion-card class="ion-no-margin">
+      <ion-card-header>
+        <ion-card-title>Checklist Transpaleteira Elétrica</ion-card-title>
+        <ion-card-subtitle> Preencha o checklist </ion-card-subtitle>
+        <ion-card>
+          <ion-item fill="solid">
+            <ion-label text-wrap>
+              <b> Orientações para o Líder:</b>
+              <p>
+                1.0- Se todos os itens estiverem "Normal", o Veículo Industrial
+                poderá ser operado normalmente;
+              </p>
+              <p>
+                1.1- Para os itens identificados como "Anormal" ou "Crítico",
+                acionar de imediato a empresa responsável pela manutenção
+                corretiva.
+              </p>
+
+              <b> Orientações para Operador: </b>
+              <p>
+                2.0- Os itens não conformes deverão ser comunicados
+                imediatamente a Liderança;
+              </p>
+              <p>
+                2.1- Caso a não conformidade seja de algum dos itens em destaque
+                (*) o HSE deverá ser acionado de imediato."
+              </p></ion-label
+            >
+          </ion-item>
+        </ion-card>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="selectedCount / totalQuestions"
+        >{{progressbar}}</ion-progress-bar>
+        
+        
+        <ion-list lines="none">
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked">*Freio do timão/manche:</ion-label>
+              <!-- <ion-col><b>*Freio do Timão/Manche:</b></ion-col> -->
+              <ion-radio-group
+                [(ngModel)]="op1"
+                name="op1"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Buzina:</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op2"
+                name="op2"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Comando Direcional Tipo Borboleta:</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op3"
+                name="op3"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Comando Elevação Garfo:</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op4"
+                name="op4"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Botão Anti Esmagamento (Emergência):</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op5"
+                name="op5"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Botão Emergência (Parada):</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op6"
+                name="op6"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+        </ion-list>
+        <div style="text-align: center">
+          <ion-button slot="start" (click)="gotoInicio()"> Voltar </ion-button>
+          <ion-button
+            (click)="gotoChecklist2()"
+            [disabled]="!op1 || !op2 || !op3 || !op4 || !op5 || !op6"
+          >
+            Próximo
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="step=='checklist2'">
+    <ion-card class="ion-no-margin">
+      <ion-card-header>
+        <ion-card-title>Checklist Transpaleteira Elétrica</ion-card-title>
+        <ion-card-subtitle> Preencha o checklist </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="selectedCount / totalQuestions"
+        ></ion-progress-bar>
+        <ion-list lines="none">
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Sensor da Trava de Bateria</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op7"
+                name="op7"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Condição das Rodas</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op8"
+                name="op8"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked" text-wrap><b>
+                  *Carenagens de Proteção Limpeza e Conservação (Avarias)</b
+                ></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op9"
+                name="op9"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Garfo / Patola</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op10"
+                name="op10"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Placa e Adesivo da Capacidade de Carga</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op11"
+                name="op11"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Chave Liga/Desliga</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op12"
+                name="op12"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+        </ion-list>
+        <div style="text-align: center">
+          <ion-button slot="start" (click)="gotoChecklist()">
+            Voltar
+          </ion-button>
+          <ion-button
+            (click)="gotoChecklist3()"
+            [disabled]="!op7 || !op8 || !op9 || !op10 || !op11 || !op12"
+          >
+            Próximo
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <div *ngIf="step=='checklist3'">
+    <ion-card class="ion-no-margin">
+      <ion-card-header>
+        <ion-card-title>Checklist Transpaleteira Elétrica</ion-card-title>
+        <ion-card-subtitle> Preencha o checklist </ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-progress-bar
+          [value]="selectedCount / totalQuestions"
+        >13</ion-progress-bar>
+        <ion-list lines="none">
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Vazamentos (Óleo Hidraúlico)</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op13"
+                name="op13"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Marcador do Horimetro</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op14"
+                name="op14"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Cabo/Plug da Bateria</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op15"
+                name="op15"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>Medidor de Carga da Bateria</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op16"
+                name="op16"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked" text-wrap><b>Carregador da Bateria (Cabo e Plugs de conexão)</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op17"
+                name="op17"
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+          <ion-list>
+            <ion-item color="light">
+              <ion-label position="stacked"><b>*Vazamentos (Água de Bateria)</b></ion-label>
+              <ion-radio-group
+                [(ngModel)]="op18"
+                name="op18 "
+                (ionChange)="updateProgress()"
+              >
+                <ion-row>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Normal</ion-label>
+                      <ion-radio slot="start" value="normal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Anormal</ion-label>
+                      <ion-radio slot="start" value="anormal"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Crítico</ion-label>
+                      <ion-radio slot="start" value="critico"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                  <ion-col>
+                    <ion-item color="light" lines="none">
+                      <ion-label>Não se aplica</ion-label>
+                      <ion-radio slot="start" value="nao-aplica"></ion-radio>
+                    </ion-item>
+                  </ion-col>
+                </ion-row>
+              </ion-radio-group>
+            </ion-item>
+          </ion-list>
+        </ion-list>
+        <div style="text-align: center">
+          <ion-button slot="start" (click)="gotoChecklist2()">
+            Voltar
+          </ion-button>
+          <ion-button
+            slot="end"
+            (click)="finish()"
+            [disabled]="!op13 || !op14 || !op15 || !op16 || !op17 || !op18"
+          >
+            Próximo
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

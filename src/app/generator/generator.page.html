@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-segment [(ngModel)]="segment" value="default">
+      <ion-segment-button value="colaborador">
+        <ion-label>Colaborador</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="lider">
+        <ion-label>Lider</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div [ngSwitch]="segment" class="qrdiv">
+    <ion-card *ngSwitchCase="'colaborador'">
+      <ion-card-header>
+        <ion-card-title>Colaborador - QR Code Generator</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Nome</ion-label>
+          <ion-input required [(ngModel)]="nome"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Matrícula</ion-label>
+          <ion-input required [(ngModel)]="matricula"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Líder</ion-label>
+          <ion-input required [(ngModel)]="lider"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Líder Matrícula</ion-label>
+          <ion-input required [(ngModel)]="lider_matricula"></ion-input>
+        </ion-item>
+      </ion-card-content>
+      <ion-card>
+        <div style="text-align: center;" *ngIf="qrCode">
+          <img [src]="qrCode" alt="QR Code">
+        </div>
+        <ion-button (click)="generateColaborador()" [disabled]="!nome || !matricula || !lider || !lider_matricula" expand="block">Gerar QR (Colaborador)</ion-button>
+        <ion-button (click)="downloadImage()" [disabled]="(habilitadownload != true)" expand="block">Download QR</ion-button>
+      </ion-card>
+    </ion-card>
+  </div>
+
+  <div [ngSwitch]="segment" class="qrdiv">
+    <ion-card *ngSwitchCase="'lider'">
+      <ion-card-header>
+        <ion-card-title>Lider - QR Code Generator</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Nome</ion-label>
+          <ion-input required [(ngModel)]="nome"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="floating">Matrícula</ion-label>
+          <ion-input required [(ngModel)]="matricula"></ion-input>
+        </ion-item>
+      </ion-card-content>
+      <ion-card>
+        <div style="text-align: center;" *ngIf="qrCodeLider">
+          <img [src]="qrCodeLider" alt="QR Code">
+        </div>
+        <ion-button (click)="generateLider()" [disabled]="!nome || !matricula" expand="block">Gerar QR (Lider)</ion-button>
+        <ion-button (click)="downloadliderImage()" [disabled]="(habilitadownload != true)" expand="block">Download QR</ion-button>
+      </ion-card>
+    </ion-card>
+  </div>
+  </ion-content>
+
+  <ion-footer>
+    <ion-row class="footer-row">
+      <ion-img src="https://cevalogsv.com/assets/img/ceva_logo.png" alt="Qr Code"></ion-img>
+      </ion-row>
+    </ion-footer>
